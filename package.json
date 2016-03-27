@@ -1,0 +1,15 @@
+{
+  "name": "preamble-ts-standalong",
+  "version": "0.0.1",
+  "description": "Standalone runner for the browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jeffrey Schwartz",
+  "license": "MIT",
+  "dependencies": {
+    "q": "^1.4.1"
+  }
+}
