@@ -1,6 +1,21 @@
 "use strict";
 var testContainer = "preamble-test-container";
 var configOptions;
+var createElement = function (tagName) {
+    return document.createElement(tagName);
+};
+var createTextNode = function (text) {
+    return document.createTextNode(text);
+};
+var getElementById = function (id) {
+    return document.getElementById(id);
+};
+var getTestContainer = function () {
+    return document.getElementById(testContainer);
+};
+var getUiTestContainerEl = function () {
+    return document.getElementById(configOptions.uiTestContainerId);
+};
 var HtmlReporter = (function () {
     function HtmlReporter() {
         this.onErrorFnPrev = window.onerror;
@@ -16,24 +31,22 @@ var HtmlReporter = (function () {
         }
         return false;
     };
-    HtmlReporter.prototype.createElement = function (tagName) {
-        return document.createElement(tagName);
-    };
-    HtmlReporter.prototype.createTextNode = function (text) {
-        return document.createTextNode(text);
-    };
-    HtmlReporter.prototype.getTestContainer = function () {
-        return document.getElementById(testContainer);
-    };
-    HtmlReporter.prototype.getUiTestContainerEl = function () {
-        return document.getElementById(configOptions.uiTestContainerId);
-    };
     HtmlReporter.prototype.reportBegin = function (confOpts) {
         configOptions = confOpts;
     };
     HtmlReporter.prototype.reportSummary = function (summaryInfo) {
-        var summary = "<div id=\"summary\">\n        <span>" + summaryInfo.name + ": </span>\n        <span style=\"color: blue;\">" + summaryInfo.totIts + "</span><b> specs</b>,\n        <span style=\"color: blue;\">" + summaryInfo.totFailedIts + "</span><b> failures</b>,\n        <span style=\"color: blue;\">" + summaryInfo.totExcIts + "</span><b> excluded</b>";
-        this.getTestContainer().innerHTML = summary;
+        var summaryEl = getElementById("preamble-summary");
+        if (!summaryEl) {
+            summaryEl = createElement("div");
+            summaryEl.setAttribute("id", "preamble-summary");
+            summaryEl.style.height = "1.5em";
+            summaryEl.style.lineHeight = "1.5em";
+            summaryEl.style.marginBottom = "auto";
+            summaryEl.style.backgroundColor = "blue";
+            summaryEl.style.color = "white";
+            getTestContainer().insertAdjacentElement("afterbegin", summaryEl);
+        }
+        summaryEl.innerHTML = "<span>" + summaryInfo.name + ": </span> <span style=\"color: white;\">" + summaryInfo.totIts + "</span><b> specs</b>, <span style=\"color: white;\">" + summaryInfo.totFailedIts + "</span><b> failures</b>, <span style=\"color: white;\">" + summaryInfo.totExcIts + "</span><b> excluded</b>";
     };
     return HtmlReporter;
 }());
