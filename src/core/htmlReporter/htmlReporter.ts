@@ -42,7 +42,7 @@ class HtmlReporter implements IReporter {
         }
         // Only report the error if uncaught error handling isn't suppressed
         if (ret !== true) {
-            // show the error in the report
+            // TODO(js): show the error in the report
         }
         return false;
 
