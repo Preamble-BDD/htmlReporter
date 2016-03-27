@@ -23,6 +23,7 @@ let getUiTestContainerEl = (): HTMLElement => {
     return document.getElementById(configOptions.uiTestContainerId);
 };
 
+// TODO(js): report apis should use promises!!!!
 class HtmlReporter implements IReporter {
     onErrorFnPrev;
     summaryInfo;
