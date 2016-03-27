@@ -41,13 +41,12 @@ class HtmlReporter implements IReporter {
     reportBegin(confOpts: { uiTestContainerId: string, name: string }) {
         configOptions = confOpts;
     }
-    reportSummary(summaryInfo: { totDescribes: number, totExcDescribes: number, totIts: number, totExcIts: number }) {
-        let summaryEl: HTMLElement;
-        let textNode;
-        let summary = `<div id="summary">Summary: <b>total specs</b>: <span style="color: blue;">${summaryInfo.totIts}</span> <b>total exluded specs</b>: <span style="color: blue;">${summaryInfo.totExcIts}</span></div>`;
-        // summaryEl = this.createElement("div");
-        // textNode = this.createTextNode(`Summary: total specs: ${summaryInfo.totIts} total exluded specs: ${summaryInfo.totExcIts}`);
-        // summaryEl.appendChild(textNode);
+    reportSummary(summaryInfo: { totDescribes: number, totExcDescribes: number, totIts: number, totFailedIts: number, totExcIts: number, name: string }) {
+        let summary = `<div id="summary">
+        <span>${summaryInfo.name}: </span>
+        <span style="color: blue;">${summaryInfo.totIts}</span><b> specs</b>,
+        <span style="color: blue;">${summaryInfo.totFailedIts}</span><b> failures</b>,
+        <span style="color: blue;">${summaryInfo.totExcIts}</span><b> excluded</b>`;
         this.getTestContainer().innerHTML = summary;
     }
 }

@@ -32,9 +32,7 @@ var HtmlReporter = (function () {
         configOptions = confOpts;
     };
     HtmlReporter.prototype.reportSummary = function (summaryInfo) {
-        var summaryEl;
-        var textNode;
-        var summary = "<div id=\"summary\">Summary: <b>total specs</b>: <span style=\"color: blue;\">" + summaryInfo.totIts + "</span> <b>total exluded specs</b>: <span style=\"color: blue;\">" + summaryInfo.totExcIts + "</span></div>";
+        var summary = "<div id=\"summary\">\n        <span>" + summaryInfo.name + ": </span>\n        <span style=\"color: blue;\">" + summaryInfo.totIts + "</span><b> specs</b>,\n        <span style=\"color: blue;\">" + summaryInfo.totFailedIts + "</span><b> failures</b>,\n        <span style=\"color: blue;\">" + summaryInfo.totExcIts + "</span><b> excluded</b>";
         this.getTestContainer().innerHTML = summary;
     };
     return HtmlReporter;
