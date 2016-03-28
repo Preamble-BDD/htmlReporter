@@ -3,15 +3,23 @@ import Q = require("q");
 let testContainer = "preamble-test-container";
 let configOptions;
 
-let createElement = (tagName: string) => {
+let createElement = (tagName: string): HTMLElement => {
     return document.createElement(tagName);
 };
 
-let createTextNode = (text: string) => {
+let createTextNode = (text: string): Text => {
     return document.createTextNode(text);
 };
 
-let getElementById = (id: string) => {
+let getBody = (): HTMLElement => {
+    return document.body;
+};
+
+let getElementByTagName = (tagName: string): NodeList => {
+    return document.getElementsByTagName(tagName);
+};
+
+let getElementById = (id: string): HTMLElement => {
     return document.getElementById(id);
 };
 
@@ -49,19 +57,20 @@ class HtmlReporter implements IReporter {
     }
     reportBegin(confOpts: { uiTestContainerId: string, name: string }) {
         configOptions = confOpts;
+        getBody().style.margin = "0";
+        getTestContainer().style.fontFamily = "sans-serif";
     }
     reportSummary(summaryInfo: { totDescribes: number, totExcDescribes: number, totIts: number, totFailedIts: number, totExcIts: number, name: string }) {
         let summaryEl = getElementById("preamble-summary");
         if (!summaryEl) {
             summaryEl = createElement("div");
             summaryEl.setAttribute("id", "preamble-summary");
-            summaryEl.style.height = "1.5em";
-            summaryEl.style.lineHeight = "1.5em";
+            summaryEl.style.padding = ".25em .5em";
             summaryEl.style.marginBottom = "auto";
-            summaryEl.style.backgroundColor = "blue";
             summaryEl.style.color = "white";
             getTestContainer().insertAdjacentElement("afterbegin", summaryEl);
         }
+        summaryEl.style.backgroundColor = summaryInfo.totFailedIts && "red" || "blue";
         summaryEl.innerHTML = `<span>${summaryInfo.name}: </span> <span style="color: white;">${summaryInfo.totIts}</span><b> specs</b>, <span style="color: white;">${summaryInfo.totFailedIts}</span><b> failures</b>, <span style="color: white;">${summaryInfo.totExcIts}</span><b> excluded</b>`;
     }
 }
