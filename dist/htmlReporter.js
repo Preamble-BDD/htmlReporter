@@ -43,17 +43,25 @@ var HtmlReporter = (function () {
         getTestContainer().style.fontFamily = "sans-serif";
     };
     HtmlReporter.prototype.reportSummary = function (summaryInfo) {
-        var summaryEl = getElementById("preamble-summary");
+        var duration = parseInt((summaryInfo.totTime / 1000).toString()) + "." + summaryInfo.totTime % 1000;
+        var summaryElId = "preamble-summary";
+        var summaryStatsId = "preamble-summary-stats";
+        var summaryDurationId = "preamble-summary-duration";
+        var summaryEl = getElementById(summaryElId);
+        var summaryStatsEl;
+        var summaryDurationEl;
+        var summaryHtml;
         if (!summaryEl) {
-            summaryEl = createElement("div");
-            summaryEl.setAttribute("id", "preamble-summary");
-            summaryEl.style.padding = ".25em .5em";
-            summaryEl.style.marginBottom = "auto";
-            summaryEl.style.color = "white";
-            getTestContainer().insertAdjacentElement("afterbegin", summaryEl);
+            summaryHtml = "<div id=\"preamble-summary\" style=\"overflow: hidden; padding: .25em .5em; color: white; background-color: blue;\"><span id=\"preamble-summary-stats\"></span><span id=\"preamble-summary-duration\" style=\"float: right; display: none;\"></span></div>";
+            getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
+            summaryEl = getElementById(summaryElId);
         }
-        summaryEl.style.backgroundColor = summaryInfo.totFailedIts && "red" || "blue";
-        summaryEl.innerHTML = "<span>" + summaryInfo.name + ": </span> <span style=\"color: white;\">" + summaryInfo.totIts + "</span><b> specs</b>, <span style=\"color: white;\">" + summaryInfo.totFailedIts + "</span><b> failures</b>, <span style=\"color: white;\">" + summaryInfo.totExcIts + "</span><b> excluded</b>";
+        summaryEl.style.backgroundColor = summaryInfo.totIts && summaryInfo.totFailedIts && "red" || summaryInfo.totIts && "green" || "blue";
+        summaryStatsEl = getElementById(summaryStatsId);
+        summaryStatsEl.innerHTML = "<span>" + summaryInfo.name + ": </span> <span style=\"color: white;\">" + summaryInfo.totIts + "</span><b> specs</b>, <span style=\"color: white;\">" + summaryInfo.totFailedIts + "</span><b> failures</b>, <span style=\"color: white;\">" + summaryInfo.totExcIts + "</span><b> excluded</b>";
+        summaryDurationEl = getElementById(summaryDurationId);
+        summaryDurationEl.innerHTML = "<span style=\"font-size: .75em;\">completed in " + duration + "s </span>";
+        summaryDurationEl.style.display = summaryInfo.totTime && "block" || "none";
     };
     return HtmlReporter;
 }());
