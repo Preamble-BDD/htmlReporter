@@ -1,5 +1,8 @@
 "use strict";
-var testContainer = "preamble-test-container";
+var testContainerId = "preamble-test-container";
+var summaryContainerId = "preamble-summary";
+var summaryStatsId = "preamble-summary-stats";
+var summaryDurationId = "preamble-summary-duration";
 var configOptions;
 var createElement = function (tagName) {
     return document.createElement(tagName);
@@ -17,10 +20,16 @@ var getElementById = function (id) {
     return document.getElementById(id);
 };
 var getTestContainer = function () {
-    return document.getElementById(testContainer);
+    return getElementById(testContainerId);
+};
+var getSummaryContainer = function () {
+    return getElementById(summaryContainerId);
 };
 var getUiTestContainerEl = function () {
-    return document.getElementById(configOptions.uiTestContainerId);
+    return getElementById(configOptions.uiTestContainerId);
+};
+var specId = function (id) {
+    return "spec_" + id;
 };
 var HtmlReporter = (function () {
     function HtmlReporter() {
@@ -44,15 +53,13 @@ var HtmlReporter = (function () {
     };
     HtmlReporter.prototype.reportSummary = function (summaryInfo) {
         var duration = parseInt((summaryInfo.totTime / 1000).toString()) + "." + summaryInfo.totTime % 1000;
-        var summaryElId = "preamble-summary";
-        var summaryStatsId = "preamble-summary-stats";
-        var summaryDurationId = "preamble-summary-duration";
+        var summaryElId = summaryContainerId;
         var summaryEl = getElementById(summaryElId);
         var summaryStatsEl;
         var summaryDurationEl;
         var summaryHtml;
         if (!summaryEl) {
-            summaryHtml = "<div id=\"preamble-summary\" style=\"overflow: hidden; padding: .25em .5em; color: white; background-color: blue;\"><span id=\"preamble-summary-stats\"></span><span id=\"preamble-summary-duration\" style=\"float: right; display: none;\"></span></div>";
+            summaryHtml = "<div id=\"" + summaryContainerId + "\" style=\"overflow: hidden; padding: .25em .5em; color: white; background-color: blue;\"><span id=\"preamble-summary-stats\"></span><span id=\"preamble-summary-duration\" style=\"float: right; display: none;\"></span></div>";
             getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
             summaryEl = getElementById(summaryElId);
         }
@@ -62,6 +69,30 @@ var HtmlReporter = (function () {
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = "<span style=\"font-size: .75em;\">completed in " + duration + "s </span>";
         summaryDurationEl.style.display = summaryInfo.totTime && "block" || "none";
+    };
+    HtmlReporter.prototype.reportSpec = function (it) {
+        var parents = [];
+        var parent = it.parent;
+        var pHtml;
+        while (parent) {
+            parents.unshift(parent);
+            parent = parent.parent;
+        }
+        if (parents.length) {
+            parents.forEach(function (p) {
+                var pEl = getElementById(specId(p.id));
+                var pParent;
+                if (!pEl) {
+                    pHtml = "<ul><li id=\"" + specId(p.id) + "\">" + p.label + "</li></ul>";
+                    if (p.parent) {
+                        getElementById(specId(p.parent.id)).insertAdjacentHTML("beforeend", pHtml);
+                    }
+                    else {
+                        getTestContainer().insertAdjacentHTML("beforeend", pHtml);
+                    }
+                }
+            });
+        }
     };
     return HtmlReporter;
 }());

@@ -1,6 +1,9 @@
 import Q = require("q");
 
-let testContainer = "preamble-test-container";
+let testContainerId = "preamble-test-container";
+let summaryContainerId = "preamble-summary";
+let summaryStatsId = "preamble-summary-stats";
+let summaryDurationId = "preamble-summary-duration";
 let configOptions;
 
 let createElement = (tagName: string): HTMLElement => {
@@ -24,11 +27,19 @@ let getElementById = (id: string): HTMLElement => {
 };
 
 let getTestContainer = (): HTMLElement => {
-    return document.getElementById(testContainer);
+    return getElementById(testContainerId);
+};
+
+let getSummaryContainer = (): HTMLElement => {
+    return getElementById(summaryContainerId);
 };
 
 let getUiTestContainerEl = (): HTMLElement => {
-    return document.getElementById(configOptions.uiTestContainerId);
+    return getElementById(configOptions.uiTestContainerId);
+};
+
+let specId = (id: string): string => {
+    return `spec_${id}`;
 };
 
 // TODO(js): report apis should use promises!!!!
@@ -65,15 +76,13 @@ class HtmlReporter implements IReporter {
         totFailedIts: number, totExcIts: number, name: string, totTime: number
     }) {
         let duration = `${parseInt((summaryInfo.totTime / 1000).toString())}.${summaryInfo.totTime % 1000}`;
-        let summaryElId = "preamble-summary";
-        let summaryStatsId = "preamble-summary-stats";
-        let summaryDurationId = "preamble-summary-duration";
+        let summaryElId = summaryContainerId;
         let summaryEl = getElementById(summaryElId);
         let summaryStatsEl;
         let summaryDurationEl;
         let summaryHtml;
         if (!summaryEl) {
-            summaryHtml = `<div id="preamble-summary" style="overflow: hidden; padding: .25em .5em; color: white; background-color: blue;"><span id="preamble-summary-stats"></span><span id="preamble-summary-duration" style="float: right; display: none;"></span></div>`;
+            summaryHtml = `<div id="${summaryContainerId}" style="overflow: hidden; padding: .25em .5em; color: white; background-color: blue;"><span id="preamble-summary-stats"></span><span id="preamble-summary-duration" style="float: right; display: none;"></span></div>`;
             getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
             summaryEl = getElementById(summaryElId);
         }
@@ -83,6 +92,34 @@ class HtmlReporter implements IReporter {
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = `<span style="font-size: .75em;">completed in ${duration}s </span>`;
         summaryDurationEl.style.display = summaryInfo.totTime && "block" || "none";
+    }
+    reportSpec(it: IIt): void {
+        let parents: IDescribe[] = [];
+        let parent: IDescribe = it.parent;
+        let pHtml: string;
+        while (parent) {
+            parents.unshift(parent);
+            parent = parent.parent;
+        }
+        if (parents.length) {
+            parents.forEach((p) => {
+                let pEl = getElementById(specId(p.id));
+                let pParent: IDescribe;
+                if (!pEl) {
+                    pHtml = `<ul><li id="${specId(p.id)}">${p.label}</li></ul>`;
+                    if (p.parent) {
+                        getElementById(specId(p.parent.id)).insertAdjacentHTML("beforeend", pHtml);
+                    } else {
+                        // getTestContainer().insertAdjacentHTML("afterbegin", pHtml);
+                        getTestContainer().insertAdjacentHTML("beforeend", pHtml);
+                    }
+                }
+            });
+        }
+        // else {
+        //     pHtml = `<ul><li id="${specId(it.parent.id)}">${it.parent.label}</li></ul>`;
+        //     getSummaryContainer().insertAdjacentHTML("afterend", pHtml);
+        // }
     }
 }
 

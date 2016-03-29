@@ -2,14 +2,27 @@
  * Generic type definitions for a generic reporter implementations.
  */
 
+declare interface INote {
+    it: IIt;
+    apiName: string;
+    expectedValue: any;
+    matcherValue: any;
+    result: boolean;
+    exception?: Error;
+}
+
 // /* Describes an It object */
-// declare interface IIt {
-//     id: string;
-//     label: string;
-//     excluded: boolean;
-//     scope: {};
-//     callback: () => void;
-// }
+declare interface IIt {
+    parent: IDescribe;
+    id: string;
+    label: string;
+    excluded: boolean;
+    // scope: {};
+    // callback: () => void;
+    // timeoutInterval: number;
+    expectations: INote[];
+    passed: boolean;
+}
 
 // /* Describes a BeforeEach and AfterEach object */
 // declare interface IPrePostTest {
@@ -19,15 +32,18 @@
 //     callback: (done: () => void) => void;
 // }
 
-// /* Describes a Describe object */
-// declare interface IDescribe {
-//     id: string;
-//     label: string;
-//     excluded: boolean;
-//     scope: {};
-//     callback: () => void;
-//     items: (mix)[];
-// }
+/* Describes a Describe object */
+declare interface IDescribe {
+    id: string;
+    label: string;
+    excluded: boolean;
+    // context: {};
+    // callback: () => void;
+    // beforeEach: BeforeEach;
+    // afterEach: AfterEach;
+    parent: IDescribe;
+    passed: boolean;
+}
 
 // /* Describes a type that can be either a BeforeEach or an AfterEach object */
 // // declare type mix = IDescribe | IPrePostTest | IIt;
@@ -50,6 +66,7 @@
 //
 /* Describes the interface that every Reporter must implement */
 declare interface IReporter {
+    reportSpec: (it: IIt) => void;
     reportBegin: (configOptions: {}) => void;
     onErrorFnPrev: (errMessage: string, url: string, lineno: string) => boolean;
     onError: (errMessage: string, url: string, lineno: string) => boolean;
