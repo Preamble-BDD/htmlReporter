@@ -38,7 +38,7 @@ let getUiTestContainerEl = (): HTMLElement => {
     return getElementById(configOptions.uiTestContainerId);
 };
 
-let specId = (id: string): string => {
+let id = (id: string): string => {
     return `spec_${id}`;
 };
 
@@ -113,23 +113,23 @@ class HtmlReporter implements IReporter {
         }
         if (parents.length) {
             parents.forEach((p) => {
-                let pEl = getElementById(specId(p.id));
+                let pEl = getElementById(id(p.id));
                 let pParent: IDescribe;
                 if (!pEl) {
-                    html = `<ul><li id="${specId(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
+                    html = `<ul><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
                     if (p.parent) {
-                        getElementById(specId(p.parent.id)).insertAdjacentHTML("beforeend", html);
+                        getElementById(id(p.parent.id)).insertAdjacentHTML("beforeend", html);
                     } else {
                         // getTestContainer().insertAdjacentHTML("afterbegin", html);
                         getTestContainer().insertAdjacentHTML("beforeend", html);
                     }
                 }
             });
-            html = `<ul><li id="${specId(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
-            getElementById(specId(it.parent.id)).insertAdjacentHTML("beforeend", html);
+            html = `<ul><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
+            getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
         }
         // else {
-        //     pHtml = `<ul><li id="${specId(it.parent.id)}">${it.parent.label}</li></ul>`;
+        //     pHtml = `<ul><li id="${id(it.parent.id)}">${it.parent.label}</li></ul>`;
         //     getSummaryContainer().insertAdjacentHTML("afterend", pHtml);
         // }
     }
