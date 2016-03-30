@@ -42,6 +42,16 @@ let specId = (id: string): string => {
     return `spec_${id}`;
 };
 
+let color = (item: IIt | IDescribe): string => {
+    if (item.excluded) {
+        return "brown";
+    }
+    if (item.passed) {
+        return "auto";
+    }
+    return "red";
+};
+
 // TODO(js): report apis should use promises!!!!
 class HtmlReporter implements IReporter {
     onErrorFnPrev;
@@ -96,7 +106,7 @@ class HtmlReporter implements IReporter {
     reportSpec(it: IIt): void {
         let parents: IDescribe[] = [];
         let parent: IDescribe = it.parent;
-        let pHtml: string;
+        let html: string;
         while (parent) {
             parents.unshift(parent);
             parent = parent.parent;
@@ -106,15 +116,17 @@ class HtmlReporter implements IReporter {
                 let pEl = getElementById(specId(p.id));
                 let pParent: IDescribe;
                 if (!pEl) {
-                    pHtml = `<ul><li id="${specId(p.id)}">${p.label}</li></ul>`;
+                    html = `<ul><li id="${specId(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
                     if (p.parent) {
-                        getElementById(specId(p.parent.id)).insertAdjacentHTML("beforeend", pHtml);
+                        getElementById(specId(p.parent.id)).insertAdjacentHTML("beforeend", html);
                     } else {
-                        // getTestContainer().insertAdjacentHTML("afterbegin", pHtml);
-                        getTestContainer().insertAdjacentHTML("beforeend", pHtml);
+                        // getTestContainer().insertAdjacentHTML("afterbegin", html);
+                        getTestContainer().insertAdjacentHTML("beforeend", html);
                     }
                 }
             });
+            html = `<ul><li id="${specId(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
+            getElementById(specId(it.parent.id)).insertAdjacentHTML("beforeend", html);
         }
         // else {
         //     pHtml = `<ul><li id="${specId(it.parent.id)}">${it.parent.label}</li></ul>`;
