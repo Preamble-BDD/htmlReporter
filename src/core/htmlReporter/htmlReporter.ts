@@ -108,6 +108,7 @@ class HtmlReporter implements IReporter {
         let parent: IDescribe = it.parent;
         let html: string;
         let htmlStackTrace: string[];
+        let reasonNumber: number;
         while (parent) {
             parents.unshift(parent);
             parent = parent.parent;
@@ -138,14 +139,16 @@ class HtmlReporter implements IReporter {
             getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
             // show why the spec failed
             if (!it.passed) {
+                reasonNumber = 0;
                 it.reasons.forEach((reason) => {
-                    html = `<ul><li id="${id(it.id)}-reason"><span style="color: ${color(it)}">${reason.reason}</span></li></ul>`;
+                    reasonNumber++;
+                    html = `<ul><li id="${id(it.id)}-reason-${reasonNumber}"><span style="color: ${color(it)}">${reason.reason}</span></li></ul>`;
                     getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
-                    html = `<ul id="${id(it.id)}-reason-stack-trace"></ul>`;
-                    getElementById(`${id(it.id)}-reason`).insertAdjacentHTML("beforeend", html);
+                    html = `<ul id="${id(it.id)}-reason-stack-trace-${reasonNumber}"></ul>`;
+                    getElementById(`${id(it.id)}-reason-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
                     reason.stackTrace.forEach((stackTrace) => {
                         html = `<li id="${id(it.id)}-reason-stack-trace-item"><span style="color: ${color(it)}">${stackTrace}</span></li>`;
-                        getElementById(`${id(it.id)}-reason-stack-trace`).insertAdjacentHTML("beforeend", html);
+                        getElementById(`${id(it.id)}-reason-stack-trace-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
                     });
                 });
             }
