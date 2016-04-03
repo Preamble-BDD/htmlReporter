@@ -17,6 +17,12 @@ declare interface INote {
     exception?: Error;
 }
 
+declare interface Reason {
+    reason: string;
+    stackTrace: string[];
+}
+
+
 // /* Describes an It object */
 declare interface IIt {
     parent: IDescribe;
@@ -28,7 +34,7 @@ declare interface IIt {
     // timeoutInterval: number;
     expectations: INote[];
     passed: boolean;
-    timeoutInfo: {reason: string , stackTrace: string[]};
+    reasons: Reason[];
     callStack: string[];
 }
 

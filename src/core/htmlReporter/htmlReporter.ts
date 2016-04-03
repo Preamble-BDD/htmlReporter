@@ -138,13 +138,15 @@ class HtmlReporter implements IReporter {
             getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
             // show why the spec failed
             if (!it.passed) {
-                html = `<ul><li id="${id(it.id)}-reason"><span style="color: ${color(it)}">${it.timeoutInfo.reason}</span></li></ul>`;
-                getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
-                html = `<ul id="${id(it.id)}-reason-stack-trace"></ul>`;
-                getElementById(`${id(it.id)}-reason`).insertAdjacentHTML("beforeend", html);
-                it.timeoutInfo.stackTrace.forEach((stackTrace) => {
-                    html = `<li id="${id(it.id)}-reason-stack-trace-item"><span style="color: ${color(it)}">${stackTrace}</span></li>`;
-                    getElementById(`${id(it.id)}-reason-stack-trace`).insertAdjacentHTML("beforeend", html);
+                it.reasons.forEach((reason) => {
+                    html = `<ul><li id="${id(it.id)}-reason"><span style="color: ${color(it)}">${reason.reason}</span></li></ul>`;
+                    getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
+                    html = `<ul id="${id(it.id)}-reason-stack-trace"></ul>`;
+                    getElementById(`${id(it.id)}-reason`).insertAdjacentHTML("beforeend", html);
+                    reason.stackTrace.forEach((stackTrace) => {
+                        html = `<li id="${id(it.id)}-reason-stack-trace-item"><span style="color: ${color(it)}">${stackTrace}</span></li>`;
+                        getElementById(`${id(it.id)}-reason-stack-trace`).insertAdjacentHTML("beforeend", html);
+                    });
                 });
             }
         }
