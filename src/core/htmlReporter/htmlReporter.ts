@@ -4,7 +4,7 @@ let testContainerId = "preamble-test-container";
 let summaryContainerId = "preamble-summary";
 let summaryStatsId = "preamble-summary-stats";
 let summaryDurationId = "preamble-summary-duration";
-let configOptions;
+let configOptions: ConfigOptions;
 
 let createElement = (tagName: string): HTMLElement => {
     return document.createElement(tagName);
@@ -76,9 +76,9 @@ class HtmlReporter implements IReporter {
         return false;
 
     }
-    reportBegin(confOpts: { uiTestContainerId: string, name: string }) {
+    reportBegin(confOpts: ConfigOptions) {
         configOptions = confOpts;
-        getBody().style.margin = "0";
+        getBody().style.margin = "52px 0 0 0"; // margin-top is set to 2 x height of summary container
         getTestContainer().style.fontFamily = "sans-serif";
     }
     reportSummary(summaryInfo: {
@@ -92,7 +92,7 @@ class HtmlReporter implements IReporter {
         let summaryDurationEl;
         let summaryHtml;
         if (!summaryEl) {
-            summaryHtml = `<div id="${summaryContainerId}" style="overflow: hidden; padding: .25em .5em; color: white; background-color: blue;"><span id="preamble-summary-stats"></span><span id="preamble-summary-duration" style="float: right; display: none;"></span></div>`;
+            summaryHtml = `<div id="${summaryContainerId}" style="box-sizing: border-box; position: fixed; top: 0; width: 100%; overflow: hidden; padding: .25em .5em; color: white; background-color: blue;"><span id="preamble-summary-stats"></span><span id="preamble-summary-duration" style="float: right; display: none;"></span></div>`;
             getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
             summaryEl = getElementById(summaryElId);
         }
@@ -107,6 +107,7 @@ class HtmlReporter implements IReporter {
         let parents: IDescribe[] = [];
         let parent: IDescribe = it.parent;
         let html: string;
+        let htmlStackTrace: string[];
         while (parent) {
             parents.unshift(parent);
             parent = parent.parent;
@@ -116,7 +117,11 @@ class HtmlReporter implements IReporter {
                 let pEl = getElementById(id(p.id));
                 let pParent: IDescribe;
                 if (!pEl) {
-                    html = `<ul><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
+                    if (it.passed && configOptions.hidePassedTests) {
+                        html = `<ul style="display: none;"><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
+                    } else {
+                        html = `<ul><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
+                    }
                     if (p.parent) {
                         getElementById(id(p.parent.id)).insertAdjacentHTML("beforeend", html);
                     } else {
@@ -125,13 +130,24 @@ class HtmlReporter implements IReporter {
                     }
                 }
             });
-            html = `<ul><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
+            if (it.passed && configOptions.hidePassedTests) {
+                html = `<ul style="display: none;"><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
+            } else {
+                html = `<ul><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
+            }
             getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
+            // show why the spec failed
+            if (!it.passed) {
+                html = `<ul><li id="${id(it.id)}-reason"><span style="color: ${color(it)}">${it.timeoutInfo.reason}</span></li></ul>`;
+                getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
+                html = `<ul id="${id(it.id)}-reason-stack-trace"></ul>`;
+                getElementById(`${id(it.id)}-reason`).insertAdjacentHTML("beforeend", html);
+                it.timeoutInfo.stackTrace.forEach((stackTrace) => {
+                    html = `<li id="${id(it.id)}-reason-stack-trace-item"><span style="color: ${color(it)}">${stackTrace}</span></li>`;
+                    getElementById(`${id(it.id)}-reason-stack-trace`).insertAdjacentHTML("beforeend", html);
+                });
+            }
         }
-        // else {
-        //     pHtml = `<ul><li id="${id(it.parent.id)}">${it.parent.label}</li></ul>`;
-        //     getSummaryContainer().insertAdjacentHTML("afterend", pHtml);
-        // }
     }
 }
 

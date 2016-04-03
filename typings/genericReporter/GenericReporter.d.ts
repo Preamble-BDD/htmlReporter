@@ -2,6 +2,12 @@
  * Generic type definitions for a generic reporter implementations.
  */
 
+declare interface ConfigOptions {
+    name: string;
+    uiTestContainerId: string;
+    hidePassedTests: boolean;
+}
+
 declare interface INote {
     it: IIt;
     apiName: string;
@@ -22,6 +28,8 @@ declare interface IIt {
     // timeoutInterval: number;
     expectations: INote[];
     passed: boolean;
+    timeoutInfo: {reason: string , stackTrace: string[]};
+    callStack: string[];
 }
 
 // /* Describes a BeforeEach and AfterEach object */
@@ -67,7 +75,7 @@ declare interface IDescribe {
 /* Describes the interface that every Reporter must implement */
 declare interface IReporter {
     reportSpec: (it: IIt) => void;
-    reportBegin: (configOptions: {}) => void;
+    reportBegin: (configOptions: { uiTestContainerId: string, name: string, hidePassedTests: boolean }) => void;
     onErrorFnPrev: (errMessage: string, url: string, lineno: string) => boolean;
     onError: (errMessage: string, url: string, lineno: string) => boolean;
 }
