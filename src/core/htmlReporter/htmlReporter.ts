@@ -42,14 +42,19 @@ let id = (id: string): string => {
     return `spec_${id}`;
 };
 
-let color = (item: IIt | IDescribe): string => {
+let cssClass = (item: IIt | IDescribe, isA: string): string => {
+    let clazz = isA;
     if (item.excluded) {
-        return "brown";
+        clazz += ` ${isA}-excluded`;
+    } else if (item.passed) {
+        clazz += ` ${isA}-passed`;
+    } else {
+        clazz += ` ${isA}-failed`;
     }
-    if (item.passed) {
-        return "auto";
+    if (configOptions.hidePassedTests) {
+        clazz += ` ${isA}-hiden`;
     }
-    return "red";
+    return clazz;
 };
 
 // TODO(js): report apis should use promises!!!!
@@ -78,8 +83,6 @@ class HtmlReporter implements IReporter {
     }
     reportBegin(confOpts: ConfigOptions) {
         configOptions = confOpts;
-        getBody().style.margin = "52px 0 0 0"; // margin-top is set to 2 x height of summary container
-        getTestContainer().style.fontFamily = "sans-serif";
     }
     reportSummary(summaryInfo: {
         totDescribes: number, totExcDescribes: number, totIts: number,
@@ -92,16 +95,16 @@ class HtmlReporter implements IReporter {
         let summaryDurationEl;
         let summaryHtml;
         if (!summaryEl) {
-            summaryHtml = `<div id="${summaryContainerId}" style="box-sizing: border-box; position: fixed; top: 0; width: 100%; overflow: hidden; padding: .25em .5em; color: white; background-color: blue;"><span id="preamble-summary-stats"></span><span id="preamble-summary-duration" style="float: right; display: none;"></span></div>`;
+            summaryHtml = `<div class="preamble-summary preamble-summary-hidden" id="${summaryContainerId}"><span id="preamble-summary-stats"></span><span class="preamble-summary-duration preamble-summary-duration-hidden" id="preamble-summary-duration"></span></div>`;
             getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
             summaryEl = getElementById(summaryElId);
         }
-        summaryEl.style.backgroundColor = summaryInfo.totIts && summaryInfo.totFailedIts && "red" || summaryInfo.totIts && "green" || "blue";
+        summaryEl.className = summaryInfo.totIts && summaryInfo.totFailedIts && "preamble-summary preamble-summary-fail" || summaryInfo.totIts && "preamble-summary preamble-summary-pass" || "preamble-summary preamble-summary-pending";
         summaryStatsEl = getElementById(summaryStatsId);
-        summaryStatsEl.innerHTML = `<span>${summaryInfo.name}: </span> <span style="color: white;">${summaryInfo.totIts}</span><b> specs</b>, <span style="color: white;">${summaryInfo.totFailedIts}</span><b> failures</b>, <span style="color: white;">${summaryInfo.totExcIts}</span><b> excluded</b>`;
+        summaryStatsEl.innerHTML = `<span>${summaryInfo.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>`;
         summaryDurationEl = getElementById(summaryDurationId);
-        summaryDurationEl.innerHTML = `<span style="font-size: .75em;">completed in ${duration}s </span>`;
-        summaryDurationEl.style.display = summaryInfo.totTime && "block" || "none";
+        summaryDurationEl.innerHTML = `<span>completed in ${duration}s </span>`;
+        summaryDurationEl.className = summaryInfo.totTime === 0 && "preamble-summary-duration preamble-summary-duration-hidden" || "preamble-summary-duration";
     }
     reportSpec(it: IIt): void {
         let parents: IDescribe[] = [];
@@ -113,45 +116,34 @@ class HtmlReporter implements IReporter {
             parents.unshift(parent);
             parent = parent.parent;
         }
-        if (parents.length) {
-            parents.forEach((p) => {
-                let pEl = getElementById(id(p.id));
-                let pParent: IDescribe;
-                if (!pEl) {
-                    if (it.passed && configOptions.hidePassedTests) {
-                        html = `<ul style="display: none;"><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
-                    } else {
-                        html = `<ul><li id="${id(p.id)}"><span style="color: ${color(p)}">${p.label}</span></li></ul>`;
-                    }
-                    if (p.parent) {
-                        getElementById(id(p.parent.id)).insertAdjacentHTML("beforeend", html);
-                    } else {
-                        // getTestContainer().insertAdjacentHTML("afterbegin", html);
-                        getTestContainer().insertAdjacentHTML("beforeend", html);
-                    }
+        parents.forEach((p) => {
+            let pEl = getElementById(id(p.id));
+            let pParent: IDescribe;
+            if (!pEl) {
+                html = `<ul class="${cssClass(p, "suite")}"><li id="${id(p.id)}"><span>${p.label}</span></li></ul>`;
+                if (p.parent) {
+                    getElementById(id(p.parent.id)).insertAdjacentHTML("beforeend", html);
+                } else {
+                    getTestContainer().insertAdjacentHTML("beforeend", html);
                 }
-            });
-            if (it.passed && configOptions.hidePassedTests) {
-                html = `<ul style="display: none;"><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
-            } else {
-                html = `<ul><li id="${id(it.id)}"><span style="color: ${color(it)}">${it.label}</span></li></ul>`;
             }
-            getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
-            // show why the spec failed
-            if (!it.passed) {
-                reasonNumber = 0;
-                it.reasons.forEach((reason) => {
-                    reasonNumber++;
-                    html = `<ul><li id="${id(it.id)}-reason-${reasonNumber}"><span style="color: ${color(it)}">${reason.reason}</span></li></ul>`;
-                    getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
-                    html = `<ul id="${id(it.id)}-reason-stack-trace-${reasonNumber}"></ul>`;
-                    getElementById(`${id(it.id)}-reason-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
-                    reason.stackTrace.forEach((stackTrace) => {
-                        html = `<li id="${id(it.id)}-reason-stack-trace-item"><span style="color: ${color(it)}">${stackTrace}</span></li>`;
-                        getElementById(`${id(it.id)}-reason-stack-trace-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
-                    });
+        });
+        html = `<ul class="${cssClass(it, "spec")}"><li id="${id(it.id)}"><span>${it.label}</span></li></ul>`;
+        getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
+        // show why the spec failed
+        if (!it.passed) {
+            reasonNumber = 0;
+            it.reasons.forEach((reason) => {
+                reasonNumber++;
+                html = `<ul class="reason"><li id="${id(it.id)}-reason-${reasonNumber}"><span>${reason.reason}</span></li></ul>`;
+                getElementById(id(it.id)).insertAdjacentHTML("beforeend", html);
+                html = `<ul class="reason-stacktrace" id="${id(it.id)}-reason-stacktrace-${reasonNumber}"></ul>`;
+                getElementById(`${id(it.id)}-reason-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
+                reason.stackTrace.forEach((stackTrace) => {
+                    html = `<li class="reason-stacktrace-item" id="${id(it.id)}-reason-stacktrace-item"><span>${stackTrace}</span></li>`;
+                    getElementById(`${id(it.id)}-reason-stacktrace-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
                 });
-            }
+            });
         }
     }
 }
