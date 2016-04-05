@@ -46,13 +46,16 @@ let cssClass = (item: IIt | IDescribe, isA: string): string => {
     let clazz = isA;
     if (item.excluded) {
         clazz += ` ${isA}-excluded`;
+        if (configOptions.hidePassedTests) {
+            clazz += ` ${isA}-hidden`;
+        }
     } else if (item.passed) {
         clazz += ` ${isA}-passed`;
+        if (configOptions.hidePassedTests) {
+            clazz += ` ${isA}-hidden`;
+        }
     } else {
         clazz += ` ${isA}-failed`;
-    }
-    if (configOptions.hidePassedTests) {
-        clazz += ` ${isA}-hiden`;
     }
     return clazz;
 };
