@@ -123,7 +123,7 @@ class HtmlReporter implements IReporter {
             let pEl = getElementById(id(p.id));
             let pParent: IDescribe;
             if (!pEl) {
-                html = `<ul class="${cssClass(p, "suite")}"><li id="${id(p.id)}"><span>${p.label}</span></li></ul>`;
+                html = `<ul class="${cssClass(p, "suite")}"><li id="${id(p.id)}"><a href="#"><span>${p.label}</span></a></li></ul>`;
                 if (p.parent) {
                     getElementById(id(p.parent.id)).insertAdjacentHTML("beforeend", html);
                 } else {
@@ -131,7 +131,7 @@ class HtmlReporter implements IReporter {
                 }
             }
         });
-        html = `<ul class="${cssClass(it, "spec")}"><li id="${id(it.id)}"><span>${it.label}</span></li></ul>`;
+        html = `<ul class="${cssClass(it, "spec")}"><li id="${id(it.id)}"><a href="#"><span>${it.label}</span></a></li></ul>`;
         getElementById(id(it.parent.id)).insertAdjacentHTML("beforeend", html);
         // show why the spec failed
         if (!it.passed) {
