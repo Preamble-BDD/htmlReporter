@@ -3,9 +3,25 @@
  */
 
 declare interface ConfigOptions {
+    version: string;
     name: string;
     uiTestContainerId: string;
     hidePassedTests: boolean;
+}
+
+declare interface TimeKeeper {
+    startTime: number;
+    endTime: number;
+    totTime: number;
+}
+
+declare interface QueueManagerStats {
+    totDescribes: number;
+    totExcDescribes: number;
+    totIts: number;
+    totExcIts: number;
+    totFailedIts: number;
+    timeKeeper: TimeKeeper;
 }
 
 declare interface INote {

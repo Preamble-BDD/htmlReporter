@@ -92,12 +92,11 @@ class HtmlReporter implements IReporter {
     }
     reportBegin(confOpts: ConfigOptions) {
         configOptions = confOpts;
+        getTestContainer().insertAdjacentHTML("beforeend",
+            `<footer>Preamble v${confOpts.version}</footer>`);
     }
-    reportSummary(summaryInfo: {
-        totDescribes: number, totExcDescribes: number, totIts: number,
-        totFailedIts: number, totExcIts: number, name: string, totTime: number
-    }) {
-        let duration = `${parseInt((summaryInfo.totTime / 1000).toString())}.${summaryInfo.totTime % 1000}`;
+    reportSummary(summaryInfo: QueueManagerStats) {
+        let duration = `${parseInt((summaryInfo.timeKeeper.totTime / 1000).toString())}.${summaryInfo.timeKeeper.totTime % 1000}`;
         let summaryElId = summaryContainerId;
         let summaryEl = getElementById(summaryElId);
         let summaryStatsEl;
@@ -110,10 +109,10 @@ class HtmlReporter implements IReporter {
         }
         summaryEl.className = summaryInfo.totIts && summaryInfo.totFailedIts && "preamble-summary preamble-summary-fail" || summaryInfo.totIts && "preamble-summary preamble-summary-pass" || "preamble-summary preamble-summary-pending";
         summaryStatsEl = getElementById(summaryStatsId);
-        summaryStatsEl.innerHTML = `<span>${summaryInfo.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>`;
+        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>`;
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = `<span>completed in ${duration}s </span>`;
-        summaryDurationEl.className = summaryInfo.totTime === 0 && "preamble-summary-duration preamble-summary-duration-hidden" || "preamble-summary-duration";
+        summaryDurationEl.className = summaryInfo.timeKeeper.totTime === 0 && "preamble-summary-duration preamble-summary-duration-hidden" || "preamble-summary-duration";
     }
     reportSpec(it: IIt): void {
         let parents: IDescribe[] = [];
