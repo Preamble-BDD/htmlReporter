@@ -22,6 +22,7 @@ declare interface QueueManagerStats {
     totExcIts: number;
     totFailedIts: number;
     timeKeeper: TimeKeeper;
+    totFiltered?: number;
 }
 
 declare interface INote {
