@@ -6,6 +6,7 @@ let summaryContainerId = "preamble-summary";
 let summaryStatsId = "preamble-summary-stats";
 let summaryDurationId = "preamble-summary-duration";
 let configOptions: ConfigOptions;
+let filtered: boolean = false;
 
 let createElement = (tagName: string): HTMLElement => {
     return document.createElement(tagName);
@@ -71,10 +72,20 @@ let wrapWithAnchor = (item: IIt | IDescribe): string => {
     return item.excluded && excluded || notExcluded;
 };
 
+let runAll = (): string => {
+    let loc = window.location;
+    let i = loc.href.indexOf("?");
+    let url = i && loc.href.substring(0, i) || loc.href;
+    let ret = "";
+    if (filtered) {
+        ret = ` - <a class="runall" href="${url}">run all</a>`;
+    }
+    return ret;
+};
+
 // TODO(js): report apis should use promises!!!!
 class HtmlReporter implements IReporter {
     onErrorFnPrev;
-    summaryInfo;
     constructor() {
         // Save reference to current window.onerror handler
         this.onErrorFnPrev = window.onerror;
@@ -97,6 +108,7 @@ class HtmlReporter implements IReporter {
     }
     reportBegin(confOpts: ConfigOptions) {
         configOptions = confOpts;
+        filtered = !!window.location.search.length;
         getTestContainer().insertAdjacentHTML("beforeend",
             `<footer>Preamble v${confOpts.version}</footer>`);
     }
@@ -114,7 +126,8 @@ class HtmlReporter implements IReporter {
         }
         summaryEl.className = summaryInfo.totIts && summaryInfo.totFailedIts && "preamble-summary preamble-summary-fail" || summaryInfo.totIts && "preamble-summary preamble-summary-pass" || "preamble-summary preamble-summary-pending";
         summaryStatsEl = getElementById(summaryStatsId);
-        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>`;
+        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>
+        <span><b> ${runAll()}</b></span>`;
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = `<span>completed in ${duration}s </span>`;
         summaryDurationEl.className = summaryInfo.timeKeeper.totTime === 0 && "preamble-summary-duration preamble-summary-duration-hidden" || "preamble-summary-duration";
