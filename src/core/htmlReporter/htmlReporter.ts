@@ -120,17 +120,31 @@ class HtmlReporter implements IReporter {
         let summaryDurationEl;
         let summaryHtml;
         if (!summaryEl) {
-            summaryHtml = `<div class="preamble-summary preamble-summary-hidden" id="${summaryContainerId}"><span id="preamble-summary-stats"></span><span class="preamble-summary-duration preamble-summary-duration-hidden" id="preamble-summary-duration"></span></div>`;
+            summaryHtml = `<div class="preamble-summary preamble-summary-hidden"
+                id="${summaryContainerId}"><span id="preamble-summary-stats"></span>
+                <span class="preamble-summary-duration preamble-summary-duration-hidden"
+                id="preamble-summary-duration"></span></div>`;
             getTestContainer().insertAdjacentHTML("afterbegin", summaryHtml);
             summaryEl = getElementById(summaryElId);
         }
-        summaryEl.className = summaryInfo.totIts && summaryInfo.totFailedIts && "preamble-summary preamble-summary-fail" || summaryInfo.totIts && "preamble-summary preamble-summary-pass" || "preamble-summary preamble-summary-pending";
+        summaryEl.className = summaryInfo.totIts && summaryInfo.totFailedIts &&
+            "preamble-summary preamble-summary-fail" ||
+            summaryInfo.totIts &&
+            "preamble-summary preamble-summary-pass" ||
+            "preamble-summary preamble-summary-pending";
         summaryStatsEl = getElementById(summaryStatsId);
-        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, <span>${summaryInfo.totFailedIts}</span><b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>
-        <span><b> ${runAll()}</b></span>`;
+        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, `;
+        summaryStatsEl.innerHTML = summaryInfo.hasOwnProperty("totFiltered")
+            && summaryStatsEl.innerHTML + `<span>${summaryInfo.totFiltered}</span>
+            <b> filtered</b>, ` || summaryStatsEl.innerHTML;
+        summaryStatsEl.innerHTML += `<span>${summaryInfo.totFailedIts}</span>
+            <b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>
+            <span><b> ${runAll()}</b></span>`;
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = `<span>completed in ${duration}s </span>`;
-        summaryDurationEl.className = summaryInfo.timeKeeper.totTime === 0 && "preamble-summary-duration preamble-summary-duration-hidden" || "preamble-summary-duration";
+        summaryDurationEl.className = summaryInfo.timeKeeper.totTime === 0 &&
+            "preamble-summary-duration preamble-summary-duration-hidden" ||
+            "preamble-summary-duration";
     }
     reportSpec(it: IIt): void {
         let parents: IDescribe[] = [];
@@ -154,7 +168,8 @@ class HtmlReporter implements IReporter {
                 }
             }
         });
-        html = `<ul class="${cssClass(it, "spec")}"><li id="${id(it)}">${wrapWithAnchor(it)}</li></ul>`;
+        html = `<ul class="${cssClass(it, "spec")}">
+            <li id="${id(it)}">${wrapWithAnchor(it)}</li></ul>`;
         getElementById(id(it.parent)).insertAdjacentHTML("beforeend", html);
         // show why the spec failed
         if (!it.passed) {
@@ -166,7 +181,8 @@ class HtmlReporter implements IReporter {
                 html = `<ul class="reason-stacktrace" id="${id(it)}-reason-stacktrace-${reasonNumber}"></ul>`;
                 getElementById(`${id(it)}-reason-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
                 reason.stackTrace.forEach((stackTrace) => {
-                    html = `<li class="reason-stacktrace-item" id="${id(it)}-reason-stacktrace-item"><span>${stackTrace}</span></li>`;
+                    html = `<li class="reason-stacktrace-item"
+                        id="${id(it)}-reason-stacktrace-item"><span>${stackTrace}</span></li>`;
                     getElementById(`${id(it)}-reason-stacktrace-${reasonNumber}`).insertAdjacentHTML("beforeend", html);
                 });
             });
