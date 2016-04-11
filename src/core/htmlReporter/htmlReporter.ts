@@ -83,6 +83,8 @@ let runAll = (): string => {
     return ret;
 };
 
+let pluralize = (word: string, count: number): string => (count > 1 || !count) && word + "s" || word;
+
 // TODO(js): report apis should use promises!!!!
 class HtmlReporter implements IReporter {
     onErrorFnPrev;
@@ -133,12 +135,12 @@ class HtmlReporter implements IReporter {
             "preamble-summary preamble-summary-pass" ||
             "preamble-summary preamble-summary-pending";
         summaryStatsEl = getElementById(summaryStatsId);
-        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> specs</b>, `;
+        summaryStatsEl.innerHTML = `<span>${configOptions.name}: </span> <span>${summaryInfo.totIts}</span><b> ${pluralize("spec", summaryInfo.totIts)}</b>, `;
         summaryStatsEl.innerHTML = summaryInfo.hasOwnProperty("totFiltered")
             && summaryStatsEl.innerHTML + `<span>${summaryInfo.totFiltered}</span>
             <b> filtered</b>, ` || summaryStatsEl.innerHTML;
         summaryStatsEl.innerHTML += `<span>${summaryInfo.totFailedIts}</span>
-            <b> failures</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>
+            <b> ${pluralize("failure", summaryInfo.totFailedIts)}</b>, <span>${summaryInfo.totExcIts}</span><b> excluded</b>
             <span><b> ${runAll()}</b></span>`;
         summaryDurationEl = getElementById(summaryDurationId);
         summaryDurationEl.innerHTML = `<span>completed in ${duration}s </span>`;
