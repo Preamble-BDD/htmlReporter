@@ -62,7 +62,11 @@ let cssClass = (item: IIt | IDescribe, isA: string): string => {
 };
 
 let wrapWithAnchor = (item: IIt | IDescribe): string => {
-    let notExcluded = `<a href="#${id(item)}" onclick="window.location.hash = '#${id(item)}'; window.location.reload();"><span>${item.label}</span></a>`;
+    let loc = window.location;
+    let i = loc.href.indexOf("?");
+    let url = i && loc.href.substring(0, i) || loc.href;
+    url += `?filter=${id(item)}`;
+    let notExcluded = `<a href="${url}"><span>${item.label}</span></a>`;
     let excluded = `<span>${item.label}</span>`;
     return item.excluded && excluded || notExcluded;
 };
