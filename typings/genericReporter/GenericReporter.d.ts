@@ -2,14 +2,58 @@
  * Generic type definitions for a generic reporter implementations.
  */
 
+declare interface ConfigOptions {
+    version: string;
+    name: string;
+    uiTestContainerId: string;
+    hidePassedTests: boolean;
+}
+
+declare interface TimeKeeper {
+    startTime: number;
+    endTime: number;
+    totTime: number;
+}
+
+declare interface QueueManagerStats {
+    totDescribes: number;
+    totExcDescribes: number;
+    totIts: number;
+    totExcIts: number;
+    totFailedIts: number;
+    timeKeeper: TimeKeeper;
+    totFiltered?: number;
+}
+
+declare interface INote {
+    it: IIt;
+    apiName: string;
+    expectedValue: any;
+    matcherValue: any;
+    result: boolean;
+    exception?: Error;
+}
+
+declare interface Reason {
+    reason: string;
+    stackTrace: string[];
+}
+
+
 // /* Describes an It object */
-// declare interface IIt {
-//     id: string;
-//     label: string;
-//     excluded: boolean;
-//     scope: {};
-//     callback: () => void;
-// }
+declare interface IIt {
+    parent: IDescribe;
+    id: string;
+    label: string;
+    excluded: boolean;
+    // scope: {};
+    // callback: () => void;
+    // timeoutInterval: number;
+    expectations: INote[];
+    passed: boolean;
+    reasons: Reason[];
+    callStack: string[];
+}
 
 // /* Describes a BeforeEach and AfterEach object */
 // declare interface IPrePostTest {
@@ -19,15 +63,18 @@
 //     callback: (done: () => void) => void;
 // }
 
-// /* Describes a Describe object */
-// declare interface IDescribe {
-//     id: string;
-//     label: string;
-//     excluded: boolean;
-//     scope: {};
-//     callback: () => void;
-//     items: (mix)[];
-// }
+/* Describes a Describe object */
+declare interface IDescribe {
+    id: string;
+    label: string;
+    excluded: boolean;
+    // context: {};
+    // callback: () => void;
+    // beforeEach: BeforeEach;
+    // afterEach: AfterEach;
+    parent: IDescribe;
+    passed: boolean;
+}
 
 // /* Describes a type that can be either a BeforeEach or an AfterEach object */
 // // declare type mix = IDescribe | IPrePostTest | IIt;
@@ -50,7 +97,8 @@
 //
 /* Describes the interface that every Reporter must implement */
 declare interface IReporter {
-    reportBegin: (configOptions: {}) => void;
+    reportSpec: (it: IIt) => void;
+    reportBegin: (configOptions: { uiTestContainerId: string, name: string, hidePassedTests: boolean }) => void;
     onErrorFnPrev: (errMessage: string, url: string, lineno: string) => boolean;
     onError: (errMessage: string, url: string, lineno: string) => boolean;
 }
