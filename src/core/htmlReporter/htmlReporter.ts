@@ -86,7 +86,7 @@ let runAll = (): string => {
 let pluralize = (word: string, count: number): string => (count > 1 || !count) && word + "s" || word;
 
 // TODO(js): report apis should use promises!!!!
-class HtmlReporter implements IReporter {
+class HtmlReporter implements Reporter {
     onErrorFnPrev;
     constructor() {
         // Save reference to current window.onerror handler
@@ -190,6 +190,7 @@ class HtmlReporter implements IReporter {
             });
         }
     }
+    reportEnd(): void {}
 }
 
 window["preamble"] = window["preamble"] || {};
