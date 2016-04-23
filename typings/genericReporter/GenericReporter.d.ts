@@ -66,7 +66,7 @@ declare interface Reporter {
     reportBegin: (configOptions: ConfigOptions) => void;
     reportSummary: (queueManagerStats: QueueManagerStats) => void;
     reportSpec: (it: IIt) => void;
-    reportEnd: () => void;
+    reportEnd: (summaryInfo: QueueManagerStats) => void;
 }
 
 /* Describe Reporter's constructor */

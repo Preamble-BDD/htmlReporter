@@ -190,7 +190,7 @@ class HtmlReporter implements Reporter {
             });
         }
     }
-    reportEnd(): void {}
+    reportEnd(summaryInfo: QueueManagerStats): void {}
 }
 
 window["preamble"] = window["preamble"] || {};
