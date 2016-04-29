@@ -1,4 +1,5 @@
 // TODO(js): debating removing Q as it doesn't have to be used so far.
+// TODO(js): FEATURE add checkbox for hide/show passed tests.
 import Q = require("q");
 
 let testContainerId = "preamble-test-container";
